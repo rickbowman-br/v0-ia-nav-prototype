@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push*)",
+            "command": "jq -r 'if (.tool_input.command | test(\"git push\")) then {\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"QUALITY GATE: You just pushed to git. Before declaring this work done you MUST: (1) run npm run build locally and confirm clean, (2) confirm no TypeScript errors, (3) confirm all four nav variants render. Do not tell the user the work is done until this checklist is complete.\"}} | tojson else empty end'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

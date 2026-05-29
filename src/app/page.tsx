@@ -1,65 +1,108 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { VariantSwitcher, type VariantId } from "@/components/VariantSwitcher";
+import { Option1Nav } from "@/components/navs/Option1Nav";
+import { Option2Nav } from "@/components/navs/Option2Nav";
+import { Option3Nav } from "@/components/navs/Option3Nav";
+import { Option4Nav } from "@/components/navs/Option4Nav";
+import { HeroSection } from "@/components/HeroSection";
+
+function NavForVariant({ variant }: { variant: VariantId }) {
+  switch (variant) {
+    case 1: return <Option1Nav />;
+    case 2: return <Option2Nav />;
+    case 3: return <Option3Nav />;
+    case 4: return <Option4Nav />;
+  }
+}
+
+export default function HomePage() {
+  const [activeVariant, setActiveVariant] = useState<VariantId>(1);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-[#FAF8F5]">
+      {/* Sticky variant switcher — always visible at top */}
+      <VariantSwitcher active={activeVariant} onChange={setActiveVariant} />
+
+      {/* The active nav variant */}
+      <NavForVariant variant={activeVariant} />
+
+      {/* Hero + body content for the active variant */}
+      <HeroSection variant={activeVariant} />
+
+      {/* Body content */}
+      <div className="max-w-[1312px] mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <h2
+              className="text-3xl font-bold text-[#111928] mb-4"
+              style={{ fontFamily: "Recife, Georgia, serif" }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Today&apos;s top rates
+            </h2>
+            <div className="space-y-4">
+              {[
+                { product: "30-yr fixed mortgage", rate: "6.49%", change: "↓ 0.08% today" },
+                { product: "High-yield savings", rate: "5.25%", change: "Unchanged" },
+                { product: "12-month CD", rate: "5.10%", change: "↑ 0.05% today" },
+                { product: "Personal loan (excellent credit)", rate: "10.99%", change: "↓ 0.15% today" },
+              ].map((row) => (
+                <div
+                  key={row.product}
+                  className="flex items-center justify-between py-3 border-b border-[#E5E2DB]"
+                >
+                  <span className="text-[#515260]">{row.product}</span>
+                  <div className="text-right">
+                    <span
+                      className="text-xl font-bold text-[#111928] block"
+                      style={{ fontFamily: "Recife, Georgia, serif" }}
+                    >
+                      {row.rate}
+                    </span>
+                    <span className="text-xs text-[#515260]">{row.change}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2
+              className="text-3xl font-bold text-[#111928] mb-4"
+              style={{ fontFamily: "Recife, Georgia, serif" }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Why Bankrate is different
+            </h2>
+            <div className="space-y-6">
+              {[
+                {
+                  title: "600+ lenders compete",
+                  desc: "More competition means better rates. Our marketplace is the largest in the U.S.",
+                },
+                {
+                  title: "Editorial independence",
+                  desc: "Our rankings and reviews are not influenced by advertisers — period.",
+                },
+                {
+                  title: "Exclusive rates",
+                  desc: "Many Bankrate rates are negotiated exclusively and can't be found if you go direct.",
+                },
+              ].map((item) => (
+                <div key={item.title}>
+                  <p
+                    className="font-semibold text-[#111928] mb-1"
+                    style={{ fontFamily: "Recife, Georgia, serif" }}
+                  >
+                    {item.title}
+                  </p>
+                  <p className="text-sm text-[#515260]">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
