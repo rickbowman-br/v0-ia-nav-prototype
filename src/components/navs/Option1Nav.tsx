@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AuthedUserDropdown } from "@/components/AuthedUserDropdown";
+import { AvatarProfileDropdown, SignInPromptDropdown } from "@/components/AvatarProfileDropdown";
 
 /* ------------------------------------------------------------------ */
 /* Shared primitives                                                    */
@@ -207,7 +208,7 @@ type ConsumerDropdownKey =
   | "insurance"
   | "myrates";
 
-type DropdownKey = ConsumerDropdownKey | "partners";
+type DropdownKey = ConsumerDropdownKey | "partners" | "avatar";
 
 interface NavItemDef {
   label: string;
@@ -299,28 +300,16 @@ export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState<DropdownKey | null>(null);
 
   const renderDropdown = (key: DropdownKey) => {
-    if (isSignedIn && key === "myrates") {
-      return <AuthedUserDropdown />;
-    }
     switch (key) {
       case "marketplace":
         return <OurMarketplaceDropdown isSignedIn={isSignedIn} />;
       case "partners":
         return <ForPartnersDropdown />;
       case "myrates":
-        // Anonymous — simple link list
-        return (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
-            <div className="max-w-[1312px] mx-auto px-6 py-8">
-              <div className="max-w-xs flex flex-col gap-2">
-                <DropLink>Saved rates</DropLink>
-                <DropLink>Rate alerts</DropLink>
-                <DropLink>My pre-qualification</DropLink>
-                <DropLink>Exclusive Insider offers</DropLink>
-              </div>
-            </div>
-          </div>
-        );
+        // Signed-in: financial data panel; anonymous: sign-in prompt
+        return isSignedIn ? <AuthedUserDropdown /> : <SignInPromptDropdown />;
+      case "avatar":
+        return <AvatarProfileDropdown />;
       default:
         return <SimpleDropdown links={SIMPLE_LINKS[key] ?? []} />;
     }
@@ -356,16 +345,36 @@ export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
           ))}
         </div>
 
-        {/* Right zone: auth CTAs + For Partners separator */}
+        {/* Right zone: avatar (signed-in) or auth CTAs (anon) + For Partners separator */}
         <div className="flex items-center gap-3">
           {isSignedIn ? (
-            <button
-              onMouseEnter={() => setOpen("partners")}
-              onClick={() => setOpen(open === "partners" ? null : "partners")}
-              className="flex items-center"
-            >
-              <UserAvatar />
-            </button>
+            /* Avatar — triggers its own profile management dropdown */
+            <div className="relative">
+              <button
+                onMouseEnter={() => setOpen("avatar")}
+                onClick={() => setOpen(open === "avatar" ? null : "avatar")}
+                aria-expanded={open === "avatar"}
+                aria-haspopup="true"
+                aria-label="Open profile menu for Sarah M."
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  SM
+                </div>
+                <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  aria-hidden="true"
+                  className={`text-[#515260] transition-transform ${open === "avatar" ? "rotate-180" : ""}`}
+                >
+                  <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {open === "avatar" && <AvatarProfileDropdown />}
+            </div>
           ) : (
             <>
               <a
@@ -398,8 +407,8 @@ export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
         </div>
       </div>
 
-      {/* Dropdown panel */}
-      {open && (
+      {/* Full-width mega-menu dropdown — all items except avatar (avatar renders inline above) */}
+      {open && open !== "avatar" && (
         <div className="mega-menu-panel">{renderDropdown(open)}</div>
       )}
     </nav>

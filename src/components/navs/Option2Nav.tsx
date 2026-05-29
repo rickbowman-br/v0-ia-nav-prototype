@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AuthedUserDropdown } from "@/components/AuthedUserDropdown";
+import { AvatarProfileDropdown, SignInPromptDropdown } from "@/components/AvatarProfileDropdown";
 
 function NavLogo() {
   return (
@@ -220,54 +221,47 @@ function ForPartnersDropdown() {
   );
 }
 
-function UserAvatar() {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-        SM
-      </div>
-      <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
-    </div>
-  );
-}
+/* ------------------------------------------------------------------ */
+/* Types & nav items config                                             */
+/* ------------------------------------------------------------------ */
 
-type ConsumerDropdownKey = "findrate" | "borrow" | "grow" | "news" | "account";
-type DropdownKey = ConsumerDropdownKey | "partners";
+type ConsumerDropdownKey = "findrate" | "borrow" | "grow" | "news" | "myrates";
+type DropdownKey = ConsumerDropdownKey | "partners" | "avatar";
 
 const NAV_ITEMS: { label: string; key: ConsumerDropdownKey }[] = [
   { label: "Find My Rate", key: "findrate" },
   { label: "Borrow Smart", key: "borrow" },
   { label: "Grow & Protect", key: "grow" },
   { label: "News & Research", key: "news" },
-  { label: "My Account", key: "account" },
+  { label: "My Rates", key: "myrates" },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Main nav component                                                   */
+/* ------------------------------------------------------------------ */
 
 export function Option2Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState<DropdownKey | null>(null);
 
   const renderDropdown = (key: DropdownKey) => {
-    if (isSignedIn && key === "account") {
-      return <AuthedUserDropdown />;
-    }
     switch (key) {
-      case "findrate": return <FindMyRateDropdown isSignedIn={isSignedIn} />;
-      case "borrow": return <BorrowSmartDropdown />;
-      case "grow": return <GrowProtectDropdown />;
-      case "news": return <NewsResearchDropdown />;
-      case "account":
-        return (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
-            <div className="max-w-[1312px] mx-auto px-6 py-8">
-              <div className="max-w-xs flex flex-col gap-2">
-                <DropLink>Saved rates</DropLink>
-                <DropLink>Rate alerts</DropLink>
-                <DropLink>My pre-qualification</DropLink>
-                <DropLink>Account settings</DropLink>
-              </div>
-            </div>
-          </div>
-        );
-      case "partners": return <ForPartnersDropdown />;
+      case "findrate":
+        return <FindMyRateDropdown isSignedIn={isSignedIn} />;
+      case "borrow":
+        return <BorrowSmartDropdown />;
+      case "grow":
+        return <GrowProtectDropdown />;
+      case "news":
+        return <NewsResearchDropdown />;
+      case "myrates":
+        // Signed-in: financial data panel (AuthedUserDropdown — saved quotes, rate alerts, pre-qual, exclusive offers)
+        // Anonymous: sign-in prompt
+        return isSignedIn ? <AuthedUserDropdown /> : <SignInPromptDropdown />;
+      case "avatar":
+        // Avatar dropdown only renders when signed in
+        return <AvatarProfileDropdown />;
+      case "partners":
+        return <ForPartnersDropdown />;
     }
   };
 
@@ -286,6 +280,8 @@ export function Option2Nav({ isSignedIn }: { isSignedIn: boolean }) {
               key={item.key}
               onMouseEnter={() => setOpen(item.key)}
               onClick={() => setOpen(open === item.key ? null : item.key)}
+              aria-expanded={open === item.key}
+              aria-haspopup="true"
               className={`
                 px-3 py-2 text-[15px] font-medium rounded-md transition-colors whitespace-nowrap
                 ${open === item.key ? "text-[#0061FE] border-b-2 border-[#0061FE]" : "text-[#515260] hover:text-[#0061FE]"}
@@ -296,10 +292,36 @@ export function Option2Nav({ isSignedIn }: { isSignedIn: boolean }) {
           ))}
         </div>
 
-        {/* Right zone: auth CTAs + For Partners separator */}
+        {/* Right zone: avatar (signed-in) or auth CTAs (anon) + For Partners separator */}
         <div className="flex items-center gap-3">
           {isSignedIn ? (
-            <UserAvatar />
+            /* Avatar — triggers its own profile management dropdown */
+            <div className="relative">
+              <button
+                onMouseEnter={() => setOpen("avatar")}
+                onClick={() => setOpen(open === "avatar" ? null : "avatar")}
+                aria-expanded={open === "avatar"}
+                aria-haspopup="true"
+                aria-label="Open profile menu for Sarah M."
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  SM
+                </div>
+                <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  aria-hidden="true"
+                  className={`text-[#515260] transition-transform ${open === "avatar" ? "rotate-180" : ""}`}
+                >
+                  <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {open === "avatar" && <AvatarProfileDropdown />}
+            </div>
           ) : (
             <>
               <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
@@ -322,7 +344,10 @@ export function Option2Nav({ isSignedIn }: { isSignedIn: boolean }) {
         </div>
       </div>
 
-      {open && <div className="mega-menu-panel">{renderDropdown(open)}</div>}
+      {/* Full-width mega-menu dropdown — all items except avatar (avatar renders inline above) */}
+      {open && open !== "avatar" && (
+        <div className="mega-menu-panel">{renderDropdown(open)}</div>
+      )}
     </nav>
   );
 }
