@@ -126,25 +126,49 @@ function OurMarketplaceDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* For Partners dropdown — anchored right, enterprise treatment         */
+/* ------------------------------------------------------------------ */
+
 function ForPartnersDropdown() {
   return (
-    <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
-      <div className="max-w-[1312px] mx-auto px-6 py-8">
-        <div className="max-w-xs">
-          <p
-            className="text-base font-semibold text-[#111928] mb-4"
-            style={{ fontFamily: "Recife, Georgia, serif" }}
-          >
-            Power your platform with Bankrate rates
-          </p>
-          <DropLink>Lender API integration</DropLink>
-          <DropLink>Distribution SDK</DropLink>
-          <DropLink>Employer benefits portal</DropLink>
-          <DropLink>Partner documentation</DropLink>
-          <div className="mt-4">
-            <CTALink>Request access</CTALink>
-          </div>
+    <div className="absolute top-full right-0 w-80 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40 overflow-hidden">
+      {/* Enterprise header band */}
+      <div className="bg-[#F5F2EB] px-5 py-4 border-b border-[#E5E2DB]">
+        <p
+          className="text-[16px] font-semibold text-[#111928] leading-snug"
+          style={{ fontFamily: "Recife, Georgia, serif" }}
+        >
+          Bankrate for business
+        </p>
+        <p
+          className="text-[13px] text-[#6C6A67] mt-0.5"
+          style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+        >
+          Power your platform with Bankrate&apos;s marketplace
+        </p>
+      </div>
+
+      {/* Links */}
+      <div className="px-5 py-4 flex flex-col gap-2.5">
+        <DropLink>Lender API integration</DropLink>
+        <DropLink>Distribution SDK</DropLink>
+        <DropLink>Employer benefits portal</DropLink>
+        <DropLink>Partner documentation</DropLink>
+        <div className="mt-1">
+          <CTALink>Request access</CTALink>
         </div>
+      </div>
+
+      {/* Footer band */}
+      <div className="bg-[#FAFAF8] border-t border-[#E5E2DB] px-5 py-3">
+        <a
+          href="#"
+          className="text-[13px] text-[#6C6A67] hover:text-[#111928] transition-colors"
+          style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+        >
+          Already a partner? Sign in →
+        </a>
       </div>
     </div>
   );
@@ -173,7 +197,7 @@ function SimpleDropdown({ links }: { links: string[] }) {
 /* Nav items config                                                     */
 /* ------------------------------------------------------------------ */
 
-type DropdownKey =
+type ConsumerDropdownKey =
   | "marketplace"
   | "banking"
   | "mortgages"
@@ -181,12 +205,13 @@ type DropdownKey =
   | "cards"
   | "loans"
   | "insurance"
-  | "myrates"
-  | "partners";
+  | "myrates";
+
+type DropdownKey = ConsumerDropdownKey | "partners";
 
 interface NavItemDef {
   label: string;
-  key: DropdownKey;
+  key: ConsumerDropdownKey;
 }
 
 const NAV_ITEMS_ANON: NavItemDef[] = [
@@ -198,7 +223,6 @@ const NAV_ITEMS_ANON: NavItemDef[] = [
   { label: "Loans", key: "loans" },
   { label: "Insurance", key: "insurance" },
   { label: "My Rates", key: "myrates" },
-  { label: "For Partners", key: "partners" },
 ];
 
 const SIMPLE_LINKS: Record<string, string[]> = {
@@ -311,7 +335,7 @@ export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
         {/* Logo */}
         <NavLogo />
 
-        {/* Nav items */}
+        {/* Consumer nav items */}
         <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
           {NAV_ITEMS_ANON.map((item) => (
             <button
@@ -332,10 +356,16 @@ export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
           ))}
         </div>
 
-        {/* CTAs — changes based on auth state */}
+        {/* Right zone: auth CTAs + For Partners separator */}
         <div className="flex items-center gap-3">
           {isSignedIn ? (
-            <UserAvatar />
+            <button
+              onMouseEnter={() => setOpen("partners")}
+              onClick={() => setOpen(open === "partners" ? null : "partners")}
+              className="flex items-center"
+            >
+              <UserAvatar />
+            </button>
           ) : (
             <>
               <a
@@ -352,6 +382,19 @@ export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
               </a>
             </>
           )}
+
+          {/* Separator + For Partners utility link */}
+          <div className="hidden lg:flex items-center gap-3">
+            <div className="w-px h-5 bg-[#E5E2DB] flex-shrink-0" />
+            <button
+              onMouseEnter={() => setOpen("partners")}
+              onClick={() => setOpen(open === "partners" ? null : "partners")}
+              className="text-[13px] text-[#6C6A67] hover:text-[#111928] transition-colors whitespace-nowrap"
+              style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+            >
+              For partners ↗
+            </button>
+          </div>
         </div>
       </div>
 

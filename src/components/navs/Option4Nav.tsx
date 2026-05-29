@@ -230,28 +230,49 @@ function MyBankrateDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* For Partners dropdown — anchored right, enterprise treatment         */
+/* ------------------------------------------------------------------ */
+
 function ForPartnersDropdown() {
   return (
-    <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
-      <div className="max-w-[1312px] mx-auto px-6 py-8">
-        <div className="max-w-xs">
-          <p
-            className="text-base font-semibold text-[#111928] mb-4"
-            style={{ fontFamily: "Recife, Georgia, serif" }}
-          >
-            Bankrate&apos;s platform, built for distribution
-          </p>
-          <div className="flex flex-col gap-2">
-            <DropLink>Lender API</DropLink>
-            <DropLink>Distribution SDK</DropLink>
-            <DropLink>Employer portal</DropLink>
-            <DropLink>Retirement plan tools</DropLink>
-            <DropLink>API documentation</DropLink>
-          </div>
-          <div className="mt-4">
-            <CTALink>Partner with us</CTALink>
-          </div>
+    <div className="absolute top-full right-0 w-80 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40 overflow-hidden">
+      {/* Enterprise header band */}
+      <div className="bg-[#F5F2EB] px-5 py-4 border-b border-[#E5E2DB]">
+        <p
+          className="text-[16px] font-semibold text-[#111928] leading-snug"
+          style={{ fontFamily: "Recife, Georgia, serif" }}
+        >
+          Bankrate for business
+        </p>
+        <p
+          className="text-[13px] text-[#6C6A67] mt-0.5"
+          style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+        >
+          Power your platform with Bankrate&apos;s marketplace
+        </p>
+      </div>
+
+      {/* Links */}
+      <div className="px-5 py-4 flex flex-col gap-2.5">
+        <DropLink>Lender API integration</DropLink>
+        <DropLink>Distribution SDK</DropLink>
+        <DropLink>Employer benefits portal</DropLink>
+        <DropLink>Partner documentation</DropLink>
+        <div className="mt-1">
+          <CTALink>Request access</CTALink>
         </div>
+      </div>
+
+      {/* Footer band */}
+      <div className="bg-[#FAFAF8] border-t border-[#E5E2DB] px-5 py-3">
+        <a
+          href="#"
+          className="text-[13px] text-[#6C6A67] hover:text-[#111928] transition-colors"
+          style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+        >
+          Already a partner? Sign in →
+        </a>
       </div>
     </div>
   );
@@ -268,21 +289,21 @@ function UserAvatar() {
   );
 }
 
-type DropdownKey = "rates" | "compare" | "calculators" | "news" | "trust" | "mybankrate" | "partners";
+type ConsumerDropdownKey = "rates" | "compare" | "calculators" | "news" | "trust" | "mybankrate";
+type DropdownKey = ConsumerDropdownKey | "partners";
 
 /* Left zone: product nav */
-const LEFT_ITEMS: { label: string; key: DropdownKey }[] = [
+const LEFT_ITEMS: { label: string; key: ConsumerDropdownKey }[] = [
   { label: "Rates", key: "rates" },
   { label: "Compare", key: "compare" },
   { label: "Calculators", key: "calculators" },
   { label: "News", key: "news" },
 ];
 
-/* Right zone: identity/trust nav */
-const RIGHT_ITEMS: { label: string; key: DropdownKey }[] = [
+/* Right zone: identity/trust nav (For Partners removed — moved to far-right enterprise zone) */
+const RIGHT_ITEMS: { label: string; key: ConsumerDropdownKey }[] = [
   { label: "Why Trust Us", key: "trust" },
   { label: "My Bankrate", key: "mybankrate" },
-  { label: "For Partners", key: "partners" },
 ];
 
 export function Option4Nav({ isSignedIn }: { isSignedIn: boolean }) {
@@ -300,7 +321,7 @@ export function Option4Nav({ isSignedIn }: { isSignedIn: boolean }) {
     }
   };
 
-  function NavBtn({ item }: { item: { label: string; key: DropdownKey } }) {
+  function NavBtn({ item }: { item: { label: string; key: ConsumerDropdownKey } }) {
     return (
       <button
         key={item.key}
@@ -332,7 +353,7 @@ export function Option4Nav({ isSignedIn }: { isSignedIn: boolean }) {
           ))}
         </div>
 
-        {/* Divider */}
+        {/* Divider between left and right consumer zones */}
         <div className="hidden lg:block w-px h-6 bg-[#E5E2DB] mx-2 flex-shrink-0" />
 
         {/* Right zone — identity/trust nav */}
@@ -352,6 +373,19 @@ export function Option4Nav({ isSignedIn }: { isSignedIn: boolean }) {
               <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
             </>
           )}
+        </div>
+
+        {/* Separator + For Partners utility link — enterprise zone, far right */}
+        <div className="hidden lg:flex items-center gap-3">
+          <div className="w-px h-5 bg-[#E5E2DB] flex-shrink-0" />
+          <button
+            onMouseEnter={() => setOpen("partners")}
+            onClick={() => setOpen(open === "partners" ? null : "partners")}
+            className="text-[13px] text-[#6C6A67] hover:text-[#111928] transition-colors whitespace-nowrap"
+            style={{ fontFamily: "'Instrument Sans', sans-serif" }}
+          >
+            For partners ↗
+          </button>
         </div>
       </div>
 
