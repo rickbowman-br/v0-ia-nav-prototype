@@ -8,28 +8,38 @@ import { Option3Nav } from "@/components/navs/Option3Nav";
 import { Option4Nav } from "@/components/navs/Option4Nav";
 import { HeroSection } from "@/components/HeroSection";
 
-function NavForVariant({ variant }: { variant: VariantId }) {
+interface NavProps {
+  isSignedIn: boolean;
+}
+
+function NavForVariant({ variant, isSignedIn }: { variant: VariantId; isSignedIn: boolean }) {
   switch (variant) {
-    case 1: return <Option1Nav />;
-    case 2: return <Option2Nav />;
-    case 3: return <Option3Nav />;
-    case 4: return <Option4Nav />;
+    case 1: return <Option1Nav isSignedIn={isSignedIn} />;
+    case 2: return <Option2Nav isSignedIn={isSignedIn} />;
+    case 3: return <Option3Nav isSignedIn={isSignedIn} />;
+    case 4: return <Option4Nav isSignedIn={isSignedIn} />;
   }
 }
 
 export default function HomePage() {
   const [activeVariant, setActiveVariant] = useState<VariantId>(1);
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#FAF8F5]">
-      {/* Sticky variant switcher — always visible at top */}
-      <VariantSwitcher active={activeVariant} onChange={setActiveVariant} />
+      {/* Sticky variant switcher + auth toggle — always visible at top */}
+      <VariantSwitcher
+        active={activeVariant}
+        onChange={setActiveVariant}
+        isSignedIn={isSignedIn}
+        onAuthToggle={setIsSignedIn}
+      />
 
       {/* The active nav variant */}
-      <NavForVariant variant={activeVariant} />
+      <NavForVariant variant={activeVariant} isSignedIn={isSignedIn} />
 
       {/* Hero + body content for the active variant */}
-      <HeroSection variant={activeVariant} />
+      <HeroSection variant={activeVariant} isSignedIn={isSignedIn} />
 
       {/* Body content */}
       <div className="max-w-[1312px] mx-auto px-6 py-16">

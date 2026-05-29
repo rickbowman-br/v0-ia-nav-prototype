@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AuthedUserDropdown } from "@/components/AuthedUserDropdown";
 
 function NavLogo() {
   return (
@@ -43,17 +44,17 @@ function ColHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-function FindMyRateDropdown() {
+function FindMyRateDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-3 gap-8">
         <div className="flex flex-col gap-2">
           <ColHeading>By intent</ColHeading>
-          <DropLink>I'm buying a home</DropLink>
-          <DropLink>I'm refinancing</DropLink>
+          <DropLink>I&apos;m buying a home</DropLink>
+          <DropLink>I&apos;m refinancing</DropLink>
           <DropLink>I want the best savings rate</DropLink>
           <DropLink>I need a loan</DropLink>
-          <DropLink>I'm comparing insurance</DropLink>
+          <DropLink>I&apos;m comparing insurance</DropLink>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -66,20 +67,42 @@ function FindMyRateDropdown() {
           <DropLink>Insurance quotes</DropLink>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="bg-[#F2F7FF] rounded-xl p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[#0061FE] mb-2" style={{ fontFamily: "Recife, Georgia, serif" }}>
-              Exclusive Rates
+        {/* Right column: personalized rate estimate when signed in, generic callout when not */}
+        {isSignedIn ? (
+          <div className="bg-[#F2F7FF] rounded-xl p-5 flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#0061FE]" style={{ fontFamily: "Recife, Georgia, serif" }}>
+              Your estimated rate
             </p>
-            <p className="text-sm text-[#515260] italic mb-4">
-              "These rates come from our 600-lender marketplace — not available if you go direct"
+            <p
+              className="text-3xl font-bold text-[#111928]"
+              style={{ fontFamily: "Recife, Georgia, serif" }}
+            >
+              5.94% APR
             </p>
-            <div className="flex flex-col gap-2">
-              <CTALink>Set a rate alert</CTALink>
-              <CTALink>See my personalized matches</CTALink>
+            <p className="text-xs text-[#515260]">Based on your profile: 780 credit · $82K down · $410K home</p>
+            <a
+              href="#"
+              className="mt-2 bg-[#0061FE] text-white text-sm font-semibold px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center"
+            >
+              See your personalized offers
+            </a>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <div className="bg-[#F2F7FF] rounded-xl p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#0061FE] mb-2" style={{ fontFamily: "Recife, Georgia, serif" }}>
+                Exclusive Rates
+              </p>
+              <p className="text-sm text-[#515260] italic mb-4">
+                &quot;These rates come from our 600-lender marketplace — not available if you go direct&quot;
+              </p>
+              <div className="flex flex-col gap-2">
+                <CTALink>Set a rate alert</CTALink>
+                <CTALink>See my personalized matches</CTALink>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -134,7 +157,7 @@ function NewsResearchDropdown() {
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-2">
           <ColHeading>News</ColHeading>
-          <DropLink>Today's rate changes</DropLink>
+          <DropLink>Today&apos;s rate changes</DropLink>
           <DropLink>Fed coverage</DropLink>
           <DropLink>Expert contributors</DropLink>
         </div>
@@ -155,7 +178,7 @@ function ForPartnersDropdown() {
       <div className="max-w-[1312px] mx-auto px-6 py-8">
         <div className="max-w-xs">
           <p className="text-base font-semibold text-[#111928] mb-4" style={{ fontFamily: "Recife, Georgia, serif" }}>
-            Power your products with Bankrate's marketplace
+            Power your products with Bankrate&apos;s marketplace
           </p>
           <div className="flex flex-col gap-2">
             <DropLink>Lender integration</DropLink>
@@ -172,17 +195,13 @@ function ForPartnersDropdown() {
   );
 }
 
-function MyAccountDropdown() {
+function UserAvatar() {
   return (
-    <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
-      <div className="max-w-[1312px] mx-auto px-6 py-8">
-        <div className="max-w-xs flex flex-col gap-2">
-          <DropLink>Saved rates</DropLink>
-          <DropLink>Rate alerts</DropLink>
-          <DropLink>My pre-qualification</DropLink>
-          <DropLink>Account settings</DropLink>
-        </div>
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        SM
       </div>
+      <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
     </div>
   );
 }
@@ -198,16 +217,31 @@ const NAV_ITEMS: { label: string; key: DropdownKey }[] = [
   { label: "For Partners", key: "partners" },
 ];
 
-export function Option2Nav() {
+export function Option2Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState<DropdownKey | null>(null);
 
   const renderDropdown = (key: DropdownKey) => {
+    if (isSignedIn && key === "account") {
+      return <AuthedUserDropdown />;
+    }
     switch (key) {
-      case "findrate": return <FindMyRateDropdown />;
+      case "findrate": return <FindMyRateDropdown isSignedIn={isSignedIn} />;
       case "borrow": return <BorrowSmartDropdown />;
       case "grow": return <GrowProtectDropdown />;
       case "news": return <NewsResearchDropdown />;
-      case "account": return <MyAccountDropdown />;
+      case "account":
+        return (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
+            <div className="max-w-[1312px] mx-auto px-6 py-8">
+              <div className="max-w-xs flex flex-col gap-2">
+                <DropLink>Saved rates</DropLink>
+                <DropLink>Rate alerts</DropLink>
+                <DropLink>My pre-qualification</DropLink>
+                <DropLink>Account settings</DropLink>
+              </div>
+            </div>
+          </div>
+        );
       case "partners": return <ForPartnersDropdown />;
     }
   };
@@ -237,8 +271,14 @@ export function Option2Nav() {
         </div>
 
         <div className="flex items-center gap-3">
-          <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
-          <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
+          {isSignedIn ? (
+            <UserAvatar />
+          ) : (
+            <>
+              <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
+              <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
+            </>
+          )}
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AuthedUserDropdown } from "@/components/AuthedUserDropdown";
 
 function NavLogo() {
   return (
@@ -43,12 +44,35 @@ function CTALink({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* ---- Rates dropdown: single wide column listing all verticals ---- */
-function RatesDropdown() {
+/* ---- Rates dropdown: adds saved rates section for signed-in users ---- */
+function RatesDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-3 gap-8">
+
+        {/* Left column — always shown */}
         <div className="flex flex-col gap-2">
+          {/* When signed in: show saved rates section above regular Mortgage links */}
+          {isSignedIn && (
+            <div className="mb-3 pb-3 border-b border-[#E5E2DB]">
+              <p
+                className="text-xs font-semibold uppercase tracking-widest text-[#111928] mb-2"
+                style={{ fontFamily: "Recife, Georgia, serif" }}
+              >
+                Your saved rates
+              </p>
+              <div className="bg-[#F2F7FF] rounded-lg p-3 flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#515260]">Mortgage</span>
+                  <span className="text-sm font-bold text-[#111928]" style={{ fontFamily: "Recife, Georgia, serif" }}>5.94%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#515260]">Savings</span>
+                  <span className="text-sm font-bold text-[#111928]" style={{ fontFamily: "Recife, Georgia, serif" }}>4.85%</span>
+                </div>
+              </div>
+            </div>
+          )}
           <ColHeading>Mortgage</ColHeading>
           <DropLink>Mortgage rates</DropLink>
           <DropLink>Refi rates</DropLink>
@@ -130,7 +154,7 @@ function NewsDropdown() {
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-2">
           <ColHeading>Today</ColHeading>
-          <DropLink>Today's rate changes</DropLink>
+          <DropLink>Today&apos;s rate changes</DropLink>
           <DropLink>Fed coverage</DropLink>
           <DropLink>Expert analysis</DropLink>
         </div>
@@ -145,12 +169,22 @@ function NewsDropdown() {
   );
 }
 
-/* ---- Why Trust Us: trust story as destination ---- */
-function WhyTrustUsDropdown() {
+/* ---- Why Trust Us: personalised note at top when signed in ---- */
+function WhyTrustUsDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-2 gap-8">
         <div className="flex flex-col gap-3">
+          {isSignedIn && (
+            <div className="bg-[#F2F7FF] rounded-xl p-4 mb-2">
+              <p className="text-sm font-semibold text-[#111928] mb-1">
+                Sarah, your data is yours. Here&apos;s exactly what we store and how it&apos;s used.
+              </p>
+              <a href="#" className="text-[15px] font-medium text-[#0061FE] hover:underline flex items-center gap-1">
+                → View your data profile
+              </a>
+            </div>
+          )}
           <p
             className="text-base font-bold text-[#111928] mb-1"
             style={{ fontFamily: "Recife, Georgia, serif" }}
@@ -159,7 +193,7 @@ function WhyTrustUsDropdown() {
           </p>
           <DropLink>Editorial independence pledge</DropLink>
           <DropLink>Our methodology & rankings</DropLink>
-          <DropLink>How we're paid (Radical Transparency)</DropLink>
+          <DropLink>How we&apos;re paid (Radical Transparency)</DropLink>
           <DropLink>Who we are — founder story</DropLink>
           <DropLink>Meet our experts</DropLink>
         </div>
@@ -169,7 +203,7 @@ function WhyTrustUsDropdown() {
             className="text-base italic text-[#515260] leading-relaxed"
             style={{ fontFamily: "Recife, Georgia, serif" }}
           >
-            "Robert Heady didn't build this company to sell leads. He built it to give the little guy a break."
+            &quot;Robert Heady didn&apos;t build this company to sell leads. He built it to give the little guy a break.&quot;
           </p>
         </div>
       </div>
@@ -177,7 +211,10 @@ function WhyTrustUsDropdown() {
   );
 }
 
-function MyBankrateDropdown() {
+function MyBankrateDropdown({ isSignedIn }: { isSignedIn: boolean }) {
+  if (isSignedIn) {
+    return <AuthedUserDropdown />;
+  }
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8">
@@ -202,7 +239,7 @@ function ForPartnersDropdown() {
             className="text-base font-semibold text-[#111928] mb-4"
             style={{ fontFamily: "Recife, Georgia, serif" }}
           >
-            Bankrate's platform, built for distribution
+            Bankrate&apos;s platform, built for distribution
           </p>
           <div className="flex flex-col gap-2">
             <DropLink>Lender API</DropLink>
@@ -216,6 +253,17 @@ function ForPartnersDropdown() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function UserAvatar() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        SM
+      </div>
+      <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
     </div>
   );
 }
@@ -237,17 +285,17 @@ const RIGHT_ITEMS: { label: string; key: DropdownKey }[] = [
   { label: "For Partners", key: "partners" },
 ];
 
-export function Option4Nav() {
+export function Option4Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState<DropdownKey | null>(null);
 
   const renderDropdown = (key: DropdownKey) => {
     switch (key) {
-      case "rates": return <RatesDropdown />;
+      case "rates": return <RatesDropdown isSignedIn={isSignedIn} />;
       case "compare": return <CompareDropdown />;
       case "calculators": return <CalculatorsDropdown />;
       case "news": return <NewsDropdown />;
-      case "trust": return <WhyTrustUsDropdown />;
-      case "mybankrate": return <MyBankrateDropdown />;
+      case "trust": return <WhyTrustUsDropdown isSignedIn={isSignedIn} />;
+      case "mybankrate": return <MyBankrateDropdown isSignedIn={isSignedIn} />;
       case "partners": return <ForPartnersDropdown />;
     }
   };
@@ -296,8 +344,14 @@ export function Option4Nav() {
 
         {/* Auth CTAs */}
         <div className="flex items-center gap-3 ml-4">
-          <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
-          <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
+          {isSignedIn ? (
+            <UserAvatar />
+          ) : (
+            <>
+              <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
+              <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
+            </>
+          )}
         </div>
       </div>
 

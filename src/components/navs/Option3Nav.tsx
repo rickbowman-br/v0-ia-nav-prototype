@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AuthedUserDropdown } from "@/components/AuthedUserDropdown";
 
 function NavLogo() {
   return (
@@ -50,7 +51,7 @@ function CTALink({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MortgageMarketplaceDropdown() {
+function MortgageMarketplaceDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-3 gap-8">
@@ -68,8 +69,22 @@ function MortgageMarketplaceDropdown() {
           </div>
         </div>
 
+        {/* Center column: "Your rates" heading + personalized top row when signed in */}
         <div className="flex flex-col gap-2">
-          <ColHeading badge>Today's exclusive rates</ColHeading>
+          <ColHeading badge={!isSignedIn}>
+            {isSignedIn ? "Your rates" : "Today's exclusive rates"}
+          </ColHeading>
+          {isSignedIn && (
+            <div className="mb-2 border-b border-[#E5E2DB] pb-2">
+              <p
+                className="text-[15px] font-bold text-[#0061FE]"
+                style={{ fontFamily: "Recife, Georgia, serif" }}
+              >
+                Your personalized rate — 5.94% APR
+              </p>
+              <p className="text-xs text-[#2E7D32] font-semibold">↓ 0.62% below public rate</p>
+            </div>
+          )}
           <DropLink>Purchase rates</DropLink>
           <DropLink>30-yr fixed · 15-yr · VA · FHA</DropLink>
           <DropLink>Refinance rates</DropLink>
@@ -187,7 +202,10 @@ function InsuranceDropdown() {
   );
 }
 
-function MyBankrateDropdown() {
+function MyBankrateDropdown({ isSignedIn }: { isSignedIn: boolean }) {
+  if (isSignedIn) {
+    return <AuthedUserDropdown />;
+  }
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8">
@@ -211,7 +229,7 @@ function ForPartnersDropdown() {
       <div className="max-w-[1312px] mx-auto px-6 py-8">
         <div className="max-w-xs">
           <p className="text-base font-semibold text-[#111928] mb-4" style={{ fontFamily: "Recife, Georgia, serif" }}>
-            Bankrate's marketplace, embedded in your platform
+            Bankrate&apos;s marketplace, embedded in your platform
           </p>
           <div className="flex flex-col gap-2">
             <a href="#" className="text-[15px] text-[#515260] hover:text-[#0061FE] hover:pl-1 transition-all block">Lender API</a>
@@ -228,6 +246,17 @@ function ForPartnersDropdown() {
   );
 }
 
+function UserAvatar() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        SM
+      </div>
+      <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
+    </div>
+  );
+}
+
 type DropdownKey = "mortgage" | "banking" | "cards" | "loans" | "insurance" | "mybankrate" | "partners";
 
 const NAV_ITEMS: { label: string; key: DropdownKey }[] = [
@@ -240,17 +269,32 @@ const NAV_ITEMS: { label: string; key: DropdownKey }[] = [
   { label: "For Partners", key: "partners" },
 ];
 
-export function Option3Nav() {
+export function Option3Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState<DropdownKey | null>(null);
+
+  // When signed in, "My Bankrate" gets a live count badge on the nav label
+  const getNavLabel = (item: { label: string; key: DropdownKey }) => {
+    if (isSignedIn && item.key === "mybankrate") {
+      return (
+        <span className="flex items-center gap-1.5">
+          {item.label}
+          <span className="bg-[#00A391] text-white text-xs font-semibold px-1.5 py-0.5 rounded-full leading-none">
+            12
+          </span>
+        </span>
+      );
+    }
+    return item.label;
+  };
 
   const renderDropdown = (key: DropdownKey) => {
     switch (key) {
-      case "mortgage": return <MortgageMarketplaceDropdown />;
+      case "mortgage": return <MortgageMarketplaceDropdown isSignedIn={isSignedIn} />;
       case "banking": return <BankingRatesDropdown />;
       case "cards": return <CardMarketplaceDropdown />;
       case "loans": return <LoanRatesDropdown />;
       case "insurance": return <InsuranceDropdown />;
-      case "mybankrate": return <MyBankrateDropdown />;
+      case "mybankrate": return <MyBankrateDropdown isSignedIn={isSignedIn} />;
       case "partners": return <ForPartnersDropdown />;
     }
   };
@@ -274,14 +318,20 @@ export function Option3Nav() {
                 ${open === item.key ? "text-[#0061FE] border-b-2 border-[#0061FE]" : "text-[#515260] hover:text-[#0061FE]"}
               `}
             >
-              {item.label}
+              {getNavLabel(item)}
             </button>
           ))}
         </div>
 
         <div className="flex items-center gap-3">
-          <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
-          <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
+          {isSignedIn ? (
+            <UserAvatar />
+          ) : (
+            <>
+              <a href="#" className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]">Log in</a>
+              <a href="#" className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Sign up</a>
+            </>
+          )}
         </div>
       </div>
 

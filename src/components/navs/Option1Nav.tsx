@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AuthedUserDropdown } from "@/components/AuthedUserDropdown";
 
 /* ------------------------------------------------------------------ */
 /* Shared primitives                                                    */
@@ -61,14 +62,6 @@ function CTALink({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ExclusiveBadge() {
-  return (
-    <span className="bg-[#0061FE] text-white text-xs font-semibold px-2 py-0.5 rounded-full ml-2">
-      Exclusive
-    </span>
-  );
-}
-
 function CalloutBox({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-[#F2F7FF] rounded-xl p-4 text-sm text-[#515260]">
@@ -81,7 +74,7 @@ function CalloutBox({ children }: { children: React.ReactNode }) {
 /* Dropdown panels                                                      */
 /* ------------------------------------------------------------------ */
 
-function OurMarketplaceDropdown() {
+function OurMarketplaceDropdown({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
       <div className="max-w-[1312px] mx-auto px-6 py-8 grid grid-cols-3 gap-8">
@@ -103,13 +96,31 @@ function OurMarketplaceDropdown() {
           <DropLink>Insurance quotes</DropLink>
         </DropdownColumn>
 
-        <DropdownColumn heading="Trust signals">
-          <DropLink>Editorial independence</DropLink>
-          <DropLink>Our methodology</DropLink>
-          <DropLink>How we're paid</DropLink>
-          <DropLink>About our rankings</DropLink>
-          <DropLink>Founder story</DropLink>
-        </DropdownColumn>
+        {/* Right column: personalized activity when signed in, trust signals when not */}
+        {isSignedIn ? (
+          <div className="flex flex-col gap-3">
+            <p
+              className="text-xs font-semibold uppercase tracking-widest text-[#111928] mb-1"
+              style={{ fontFamily: "Recife, Georgia, serif" }}
+            >
+              Your marketplace activity
+            </p>
+            <div className="bg-[#F2F7FF] rounded-xl p-4 flex flex-col gap-2">
+              <p className="text-sm text-[#515260]">Saved 2 quotes this week</p>
+              <p className="text-sm text-[#515260]">1 rate alert active</p>
+              <p className="text-sm text-[#515260]">Pre-qual 60% complete</p>
+              <CTALink>Pick up where you left off</CTALink>
+            </div>
+          </div>
+        ) : (
+          <DropdownColumn heading="Trust signals">
+            <DropLink>Editorial independence</DropLink>
+            <DropLink>Our methodology</DropLink>
+            <DropLink>How we&apos;re paid</DropLink>
+            <DropLink>About our rankings</DropLink>
+            <DropLink>Founder story</DropLink>
+          </DropdownColumn>
+        )}
       </div>
     </div>
   );
@@ -133,21 +144,6 @@ function ForPartnersDropdown() {
           <div className="mt-4">
             <CTALink>Request access</CTALink>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MyRatesDropdown() {
-  return (
-    <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
-      <div className="max-w-[1312px] mx-auto px-6 py-8">
-        <div className="max-w-xs">
-          <DropLink>Saved rates</DropLink>
-          <DropLink>Rate alerts</DropLink>
-          <DropLink>My pre-qualification</DropLink>
-          <DropLink>Exclusive Insider offers</DropLink>
         </div>
       </div>
     </div>
@@ -193,7 +189,7 @@ interface NavItemDef {
   key: DropdownKey;
 }
 
-const NAV_ITEMS: NavItemDef[] = [
+const NAV_ITEMS_ANON: NavItemDef[] = [
   { label: "Our Marketplace", key: "marketplace" },
   { label: "Banking", key: "banking" },
   { label: "Mortgages", key: "mortgages" },
@@ -257,20 +253,50 @@ const SIMPLE_LINKS: Record<string, string[]> = {
 };
 
 /* ------------------------------------------------------------------ */
+/* User avatar                                                           */
+/* ------------------------------------------------------------------ */
+
+function UserAvatar() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-full bg-[#0061FE] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        SM
+      </div>
+      <span className="text-[15px] font-medium text-[#111928]">Sarah M.</span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Main nav component                                                   */
 /* ------------------------------------------------------------------ */
 
-export function Option1Nav() {
+export function Option1Nav({ isSignedIn }: { isSignedIn: boolean }) {
   const [open, setOpen] = useState<DropdownKey | null>(null);
 
   const renderDropdown = (key: DropdownKey) => {
+    if (isSignedIn && key === "myrates") {
+      return <AuthedUserDropdown />;
+    }
     switch (key) {
       case "marketplace":
-        return <OurMarketplaceDropdown />;
+        return <OurMarketplaceDropdown isSignedIn={isSignedIn} />;
       case "partners":
         return <ForPartnersDropdown />;
       case "myrates":
-        return <MyRatesDropdown />;
+        // Anonymous — simple link list
+        return (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-b-2xl border-t border-[#E5E2DB] z-40">
+            <div className="max-w-[1312px] mx-auto px-6 py-8">
+              <div className="max-w-xs flex flex-col gap-2">
+                <DropLink>Saved rates</DropLink>
+                <DropLink>Rate alerts</DropLink>
+                <DropLink>My pre-qualification</DropLink>
+                <DropLink>Exclusive Insider offers</DropLink>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return <SimpleDropdown links={SIMPLE_LINKS[key] ?? []} />;
     }
@@ -287,7 +313,7 @@ export function Option1Nav() {
 
         {/* Nav items */}
         <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
-          {NAV_ITEMS.map((item) => (
+          {NAV_ITEMS_ANON.map((item) => (
             <button
               key={item.key}
               onMouseEnter={() => setOpen(item.key)}
@@ -306,20 +332,26 @@ export function Option1Nav() {
           ))}
         </div>
 
-        {/* CTAs */}
+        {/* CTAs — changes based on auth state */}
         <div className="flex items-center gap-3">
-          <a
-            href="#"
-            className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]"
-          >
-            Log in
-          </a>
-          <a
-            href="#"
-            className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Sign up
-          </a>
+          {isSignedIn ? (
+            <UserAvatar />
+          ) : (
+            <>
+              <a
+                href="#"
+                className="text-[15px] font-medium text-[#515260] hover:text-[#0061FE]"
+              >
+                Log in
+              </a>
+              <a
+                href="#"
+                className="bg-[#0061FE] text-white text-[15px] font-medium px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Sign up
+              </a>
+            </>
+          )}
         </div>
       </div>
 
